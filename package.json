@@ -1,0 +1,14 @@
+{
+  "name": "docs-studio",
+  "version": "0.1.0",
+  "description": "Claude Code skill: living documentation for any project. Animated diagrams, pages scanned from your repo on every commit, a status board and a whiteboard. Call it once.",
+  "keywords": ["claude-code", "claude", "skill", "documentation", "docs", "diagrams", "architecture", "mermaid-alternative", "excalidraw", "kanban"],
+  "homepage": "https://github.com/rsmed31/docs-studio#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/rsmed31/docs-studio.git" },
+  "bugs": { "url": "https://github.com/rsmed31/docs-studio/issues" },
+  "author": "Mohamed Rsaissi",
+  "bin": { "docs-studio": "bin/cli.js" },
+  "files": ["bin", "SKILL.md", "README.md", "scripts", "runtime", "references"],
+  "engines": { "node": ">=16" },
+  "license": "UNLICENSED"
+}

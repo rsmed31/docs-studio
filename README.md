@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/docs-studio"><img alt="npm" src="https://img.shields.io/npm/v/docs-studio?color=cb3837&logo=npm"></a>
   <img alt="Claude Code skill" src="https://img.shields.io/badge/Claude%20Code-skill-6b4eff">
   <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab">
   <img alt="No build step, no network" src="https://img.shields.io/badge/runtime-stdlib%20%2B%20PyYAML-2ea44f">
@@ -17,6 +18,14 @@
 </p>
 
 ---
+
+## Quick start
+
+```bash
+npx docs-studio init        # installs the skill, then sets up the project in the current folder
+```
+
+Or install the skill once and let Claude do the rest in any project: `npx docs-studio`, then open Claude Code and say **"document this project with docs-studio"**. More options under [Install](#install).
 
 ## The problem
 
@@ -216,6 +225,19 @@ flowchart LR
 
 ## Install
 
+**With npm (fastest):**
+
+```bash
+npx docs-studio                 # install or update the skill in ~/.claude/skills/docs-studio
+npx docs-studio init            # ...and set up the project in the current folder right away
+npx docs-studio init --name "My project" --no-git-hook      # init options are passed through
+npx docs-studio uninstall       # remove the skill
+```
+
+Or install it globally once: `npm install -g docs-studio`, then run `docs-studio` / `docs-studio init`. (`CLAUDE_CONFIG_DIR` is respected if you moved your Claude folder.)
+
+**With git:**
+
 ```bash
 git clone https://github.com/rsmed31/docs-studio.git ~/.claude/skills/docs-studio     # or copy the folder there
 ```
@@ -226,7 +248,7 @@ On Windows: `%USERPROFILE%\.claude\skills\docs-studio`. Start a new Claude Code 
 
 or type `/docs-studio`. That's the only time you have to ask.
 
-**Requirements:** Claude Code, Python 3.9+ and PyYAML (`python -m pip install pyyaml`; the installer tries it for you). Git is optional (without it you lose the commit hook and the activity scanners). Nothing else: no Node, no build step, no network, no CDN.
+**Requirements:** Claude Code, Python 3.9+ and PyYAML (`python -m pip install pyyaml`; the installer tries it for you). Git is optional (without it you lose the commit hook and the activity scanners). Node 16+ is only needed for the `npx` installer; the skill itself runs on Python alone, with no build step, no network and no CDN.
 
 ## Everyday use
 
@@ -308,6 +330,7 @@ def scan(ctx):                      # ctx.files, ctx.read(path), ctx.run(*git_ar
 ## Repository layout
 
 ```
+package.json, bin/cli.js the npm installer (`npx docs-studio`)
 SKILL.md                 what Claude reads (setup, refresh, add a diagram, uninstall)
 scripts/install.py       one-time installer / updater / uninstaller
 runtime/                 copied into each project's docs/
