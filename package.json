@@ -10,5 +10,5 @@
   "bin": { "docs-studio": "bin/cli.js" },
   "files": ["bin", "SKILL.md", "README.md", "scripts", "runtime", "references"],
   "engines": { "node": ">=16" },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

@@ -345,4 +345,4 @@ images/                  screenshots used by this README (light and dark)
 
 ## Credits and license
 
-The whiteboard is [Excalidraw](https://github.com/excalidraw/excalidraw) 0.17.6 with React, both MIT-licensed and vendored under `runtime/site/whiteboard/vendor/` with their licenses. Add a license for the rest of this repository before publishing.
+The whiteboard is [Excalidraw](https://github.com/excalidraw/excalidraw) 0.17.6 with React, both MIT-licensed and vendored under `runtime/site/whiteboard/vendor/` with their licenses. The rest of this repository is released under the [MIT License](LICENSE).
