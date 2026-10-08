@@ -217,7 +217,7 @@ flowchart LR
 ## Install
 
 ```bash
-git clone <this repo> ~/.claude/skills/docs-studio     # or copy the folder there
+git clone https://github.com/rsmed31/docs-studio.git ~/.claude/skills/docs-studio     # or copy the folder there
 ```
 
 On Windows: `%USERPROFILE%\.claude\skills\docs-studio`. Start a new Claude Code session, open a project and say:
