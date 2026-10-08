@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiteboard</title>
+<style>
+  :root { --bg:#f7f8fa; --surface:#fff; --ink:#141821; --muted:#5d6779; --line:#cfd5df; --accent:#4338ca; }
+  :root[data-theme="dark"] { --bg:#0d1016; --surface:#141922; --ink:#e9edf4; --muted:#9aa4b5; --line:#2a3240; --accent:#a5b4fc; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  #app { display:flex; flex-direction:column; height:100%; }
+  .bar { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; padding:.5rem .75rem; border-bottom:1px solid var(--line); background:var(--surface); }
+  .bar select, .bar button { font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:.3rem .6rem; }
+  .bar button { cursor:pointer; }
+  .bar button:hover { border-color:var(--accent); color:var(--accent); }
+  .bar button:focus-visible, .bar select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .bar .spacer { flex:1; }
+  .bar .status { color:var(--muted); font-size:.85rem; }
+  .stage { flex:1; min-height:0; }
+</style>
+<script>
+  // Same theme as the docs (shared localStorage key when served from the docs server).
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("avs-docs-theme"); } catch (e) {}
+    if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", t);
+    window.EXCALIDRAW_ASSET_PATH = "./vendor/";
+  })();
+</script>
+<script src="./vendor/react.production.min.js"></script>
+<script src="./vendor/react-dom.production.min.js"></script>
+<script src="./vendor/excalidraw.production.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <div class="bar">
+    <label for="boards">Board</label>
+    <select id="boards" aria-label="Choose a whiteboard"></select>
+    <button id="new" type="button">New</button>
+    <button id="rename" type="button">Rename</button>
+    <button id="del" type="button">Delete</button>
+    <button id="export" type="button">Export</button>
+    <button id="import" type="button">Import</button>
+    <input id="file" type="file" accept=".excalidraw,.json,application/json" hidden>
+    <button id="theme" type="button" aria-label="Switch light or dark background">Dark background</button>
+    <span class="spacer"></span>
+    <span class="status" id="status" aria-live="polite"></span>
+    <button id="save" type="button">Save now</button>
+  </div>
+  <div class="stage" id="stage"></div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var h = React.createElement, X = ExcalidrawLib;
+  var $ = function (id) { return document.getElementById(id); };
+  var server = false;          // true when /api/whiteboards answers (serve.py or the Netlify function); else this browser only
+  var LOCAL_KEY = "avs-whiteboards";
+  var state = { boards: [], current: null, scene: null, dirty: false, lastCommit: Date.now(), api: null };
+  var root = ReactDOM.createRoot($("stage"));
+  var saveTimer = null;
+
+  function theme() { return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
+  function paintThemeButton() { $("theme").textContent = theme() === "dark" ? "Light background" : "Dark background"; }
+  function status(t) { $("status").textContent = t; }
+  function uid() { return "wb_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+
+  // ---- storage: the repo through serve.py, else this browser ---------------------- //
+  function localAll() { try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); } catch (e) { return {}; } }
+  function localPut(all) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(all)); return true; } catch (e) { return false; } }
+  function api(method, path, body, extra) {
+    return fetch(path, { method: method, headers: Object.assign({ "Content-Type": "application/json" }, extra || {}),
+                         body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j.errors || [j.error]).join("; ")); return j; }); });
+  }
+  function listBoards() {
+    if (server) return api("GET", "/api/whiteboards").then(function (j) { return j.boards; });
+    var all = localAll();
+    return Promise.resolve(Object.keys(all).map(function (id) { return { id: id, title: all[id].title, updated: all[id].updated }; }));
+  }
+  function loadBoard(id) {
+    if (server) return api("GET", "/api/whiteboards/" + id);
+    return Promise.resolve(localAll()[id] || { id: id, title: "Untitled", scene: null });
+  }
+  function storeBoard(id, title, scene, commit) {
+    var doc = { id: id, title: title, scene: scene, updated: new Date().toISOString() };
+    if (server) return api("PUT", "/api/whiteboards/" + id, doc, commit ? { "X-Commit": "1" } : null);
+    var all = localAll(); all[id] = doc;
+    return Promise.resolve(localPut(all) ? { saved: true, committed: false, note: "saved in this browser only" }
+                                         : Promise.reject(new Error("browser storage is full or blocked")));
+  }
+  function removeBoard(id) {
+    if (server) return api("DELETE", "/api/whiteboards/" + id);
+    var all = localAll(); delete all[id]; localPut(all); return Promise.resolve({});
+  }
+
+  // ---- saving ---------------------------------------------------------------- //
+  function snapshot() {
+    if (!state.api) return state.scene;
+    var app = state.api.getAppState();
+    return { elements: state.api.getSceneElements(), files: state.api.getFiles(),
+             appState: { viewBackgroundColor: app.viewBackgroundColor, gridSize: app.gridSize } };
+  }
+  function save(forceCommit) {
+    if (!state.current) return Promise.resolve();
+    clearTimeout(saveTimer);
+    var commit = forceCommit || Date.now() - state.lastCommit > 60000;   // commit at most once a minute
+    var board = state.boards.filter(function (b) { return b.id === state.current; })[0] || { title: "Untitled" };
+    status("Saving…");
+    return storeBoard(state.current, board.title, snapshot(), commit).then(function (r) {
+      state.dirty = false;
+      if (r.committed) state.lastCommit = Date.now();
+      status(server ? (r.committed ? "Saved to the repo (committed)" : "Saved") : "Saved in this browser only");
+    }).catch(function (e) { status("Not saved: " + e.message); });
+  }
+  function scheduleSave() { state.dirty = true; status("Unsaved changes"); clearTimeout(saveTimer); saveTimer = setTimeout(save, 1500); }
+
+  // ---- board UI --------------------------------------------------------------- //
+  function render(scene) {
+    state.api = null;
+    var known = scene && scene.elements ? scene : { elements: [], appState: {}, files: {} };
+    var initialVersion = JSON.stringify(known.elements.map(function (e) { return e.id + ":" + e.version; }));
+    root.render(h(X.Excalidraw, {
+      key: state.current,
+      theme: theme(),
+      excalidrawAPI: function (a) { state.api = a; },
+      initialData: { elements: known.elements, files: known.files || {}, scrollToContent: true,
+                     appState: Object.assign({}, known.appState || {}, { theme: theme() }) },
+      onChange: function (elements) {
+        var now = JSON.stringify(elements.map(function (e) { return e.id + ":" + e.version; }));
+        if (now !== initialVersion) { initialVersion = now; scheduleSave(); }
+      },
+      UIOptions: { canvasActions: { toggleTheme: false, loadScene: true, export: { saveFileToDisk: true }, saveToActiveFile: false } }
+    }));
+  }
+  function fillSelect() {
+    $("boards").innerHTML = "";
+    state.boards.forEach(function (b) {
+      var o = document.createElement("option"); o.value = b.id; o.textContent = b.title || b.id;
+      if (b.id === state.current) o.selected = true; $("boards").appendChild(o);
+    });
+  }
+  function open(id) {
+    var go = state.dirty ? save(true) : Promise.resolve();
+    return go.then(function () { return loadBoard(id); }).then(function (doc) {
+      state.current = id; state.scene = doc.scene; fillSelect(); render(doc.scene);
+      try { localStorage.setItem("avs-whiteboard-last", id); } catch (e) {}
+      status(server ? "Saved" : "Saved in this browser only (no whiteboard server on this host)");
+    }).catch(function (e) { status("Could not open: " + e.message); });
+  }
+  function create(auto) {
+    var title = auto === true ? "My doodles" : prompt("Name of the new board", "Doodles " + new Date().toLocaleDateString());
+    if (title === null) return;
+    var id = uid();
+    state.boards.push({ id: id, title: title || "Untitled" });
+    state.current = id; state.scene = null; fillSelect(); render(null);
+    storeBoard(id, title || "Untitled", { elements: [], appState: {}, files: {} }, true)
+      .then(function () { status("New board saved"); }).catch(function (e) { status("Not saved: " + e.message); });
+  }
+
+  $("boards").addEventListener("change", function () { open(this.value); });
+  $("new").addEventListener("click", function () { create(false); });
+  $("save").addEventListener("click", function () { save(true); });
+  $("rename").addEventListener("click", function () {
+    var b = state.boards.filter(function (x) { return x.id === state.current; })[0]; if (!b) return;
+    var t = prompt("New name", b.title); if (!t) return; b.title = t; fillSelect(); save(true);
+  });
+  $("del").addEventListener("click", function () {
+    var b = state.boards.filter(function (x) { return x.id === state.current; })[0]; if (!b) return;
+    if (!confirm("Delete the board \"" + b.title + "\"? It stays in the git history.")) return;
+    removeBoard(b.id).then(function () {
+      state.boards = state.boards.filter(function (x) { return x.id !== b.id; }); state.dirty = false;
+      if (state.boards.length) open(state.boards[0].id); else create(true);
+    });
+  });
+  $("export").addEventListener("click", function () {
+    var b = state.boards.filter(function (x) { return x.id === state.current; })[0]; if (!b) return;
+    var sc = snapshot() || {};
+    var doc = { type: "excalidraw", version: 2, source: "docs-whiteboard", title: b.title,
+                elements: sc.elements || [], appState: sc.appState || {}, files: sc.files || {} };
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(doc)], { type: "application/json" }));
+    a.download = (b.title || "whiteboard").replace(/[^\w.-]+/g, "_") + ".excalidraw";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    status("Exported " + a.download);
+  });
+  $("import").addEventListener("click", function () { $("file").click(); });
+  $("file").addEventListener("change", function () {
+    var f = this.files[0]; this.value = ""; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      var d; try { d = JSON.parse(r.result); } catch (e) { status("Import failed: not a JSON file"); return; }
+      var scene = d && d.scene && d.scene.elements ? d.scene : d;                 // our board file or a plain .excalidraw
+      if (!scene || !Array.isArray(scene.elements)) { status("Import failed: no drawing found in this file"); return; }
+      var go = state.dirty ? save(true) : Promise.resolve();
+      go.then(function () {
+        var id = uid(), title = (d.title || f.name.replace(/\.(excalidraw|json)$/i, "") || "Imported").slice(0, 120);
+        var sc = { elements: scene.elements, files: scene.files || {}, appState: scene.appState || {} };
+        state.boards.push({ id: id, title: title }); state.current = id; state.scene = sc; fillSelect(); render(sc);
+        return storeBoard(id, title, sc, true).then(function () { status("Imported as \"" + title + "\""); });
+      }).catch(function (e) { status("Not saved: " + e.message); });
+    };
+    r.readAsText(f);
+  });
+  $("theme").addEventListener("click", function () {
+    var next = theme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("avs-docs-theme", next); } catch (e) {}
+    paintThemeButton(); if (state.api) state.api.updateScene({ appState: { theme: next } }); render(snapshot());
+  });
+  window.addEventListener("storage", function (e) {             // the docs page switched theme
+    if (e.key === "avs-docs-theme" && (e.newValue === "dark" || e.newValue === "light")) {
+      document.documentElement.setAttribute("data-theme", e.newValue); paintThemeButton(); render(snapshot());
+    }
+  });
+  window.addEventListener("beforeunload", function () { if (state.dirty) save(true); });
+  document.addEventListener("visibilitychange", function () { if (document.hidden && state.dirty) save(true); });
+
+  paintThemeButton();
+  api("GET", "/api/whiteboards").then(function () { server = true; }, function () { server = false; })
+  .then(listBoards).then(function (boards) {
+    state.boards = boards || [];
+    var last = null; try { last = localStorage.getItem("avs-whiteboard-last"); } catch (e) {}
+    var pick = state.boards.filter(function (b) { return b.id === last; })[0] || state.boards[0];
+    if (pick) open(pick.id); else create(true);
+  }).catch(function (e) { status("Could not list boards: " + e.message); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+/* Diagram presets: palette, shapes, text, and the animations (docs/site/presets/*.py draw the SVG) */
+:root {
+  --c1: #4f6bed; --c2: #14a37f; --c3: #e8912d; --c4: #d4527a; --c5: #8b5cf6; --c6: #1fa2c9; --c7: #7a9a1d; --c8: #8a7f72;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c1: #8da0ff; --c2: #45c9a3; --c3: #f2b05e; --c4: #f08ab0; --c5: #b69cff; --c6: #5cc4e6; --c7: #b2cf5a; --c8: #b5ab9d; }
+}
+:root[data-theme="dark"] { --c1: #8da0ff; --c2: #45c9a3; --c3: #f2b05e; --c4: #f08ab0; --c5: #b69cff; --c6: #5cc4e6; --c7: #b2cf5a; --c8: #b5ab9d; }
+.c1 { --c: var(--c1); } .c2 { --c: var(--c2); } .c3 { --c: var(--c3); } .c4 { --c: var(--c4); }
+.c5 { --c: var(--c5); } .c6 { --c: var(--c6); } .c7 { --c: var(--c7); } .c8 { --c: var(--c8); }
+
+/* text */
+.pv-t { fill: var(--ink); font: 600 13px var(--font); }
+.pv-s { fill: var(--muted); font: 400 11px var(--font); }
+.pv-l { fill: var(--ink-2); font: 500 10.5px var(--font); }
+.pv-center { fill: var(--ink); font: 700 26px var(--font); }
+.pv-t.on-fill, .pv-s.on-fill { fill: var(--accent-ink); }
+.pv-zone-t { fill: var(--muted); font: 700 11px var(--font); letter-spacing: .08em; text-transform: uppercase; }
+.pv-col-t { fill: var(--ink-2); font: 700 12px var(--font); }
+.pv-s.row { fill: var(--ink-2); font-size: 12px; } .pv-s.key { font-size: 10.5px; }
+.pv-ico { color: var(--accent); }
+
+/* shapes */
+.pv-shape { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.3; }
+.pv-shape.solid { fill: var(--ink-2); }
+.pv-shape[class*=" c"], polygon.pv-shape.c1, .pv-shape.c1,.pv-shape.c2,.pv-shape.c3,.pv-shape.c4,.pv-shape.c5,.pv-shape.c6,.pv-shape.c7,.pv-shape.c8 { fill: var(--c); stroke: none; }
+.pv-shape.st-done { stroke: var(--ok); } .pv-shape.st-running { stroke: var(--run); stroke-dasharray: 6 4; }
+.pv-shape.st-planned { stroke: var(--plan); stroke-dasharray: 2 4; fill: var(--plan-soft); } .pv-shape.st-blocked { stroke: var(--danger); }
+.pv-line { stroke: var(--ink-2); stroke-width: 1.2; fill: none; }
+.pv-head { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+.pv-zone { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.2; }
+.k-dec .pv-shape { fill: var(--run-soft); stroke: var(--run); }
+.k-data .pv-shape { fill: var(--info-soft); stroke: var(--info); } .k-data .pv-line { stroke: var(--info); }
+.k-model .pv-shape, .k-ok .pv-shape { fill: var(--ok-soft); stroke: var(--ok); }
+.k-owner .pv-shape, .k-state .pv-shape, .k-info .pv-shape { fill: var(--accent-soft); stroke: var(--accent); }
+.k-ext .pv-shape { stroke: var(--muted); stroke-dasharray: 5 3; }
+.k-plan .pv-shape { fill: var(--plan-soft); stroke: var(--plan); stroke-dasharray: 5 4; }
+.k-danger .pv-shape { fill: var(--danger-soft); stroke: var(--danger); }
+.k-note .pv-shape { fill: var(--warn-soft); stroke: var(--warn); }
+.k-circle .pv-shape { fill: var(--accent-soft); stroke: var(--accent); }
+.k-start .pv-shape.solid, .k-end .pv-shape.solid { fill: var(--ink-2); stroke: none; }
+.k-end .pv-shape:not(.solid) { fill: none; }
+.k-record .pv-shape { fill: var(--surface); stroke: var(--accent); }
+.pv-n.root .pv-shape { fill: var(--accent); stroke: var(--accent); } .pv-n.root .pv-t, .pv-n.root .pv-s { fill: var(--accent-ink); }
+a:has(> .pv-n) { text-decoration: none; cursor: pointer; }
+a:hover > .pv-n .pv-shape, a:focus-visible > .pv-n .pv-shape { stroke: var(--accent); stroke-width: 2.2; }
+
+/* edges */
+.pv-edge { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.pv-edge.dash { stroke-dasharray: 6 5; } .pv-edge.thick { stroke-width: 3; }
+.pv-edge.back { stroke: var(--danger); } .pv-arrow { fill: var(--muted); } .pv-arrow.back { fill: var(--danger); }
+.pv-lab rect { fill: var(--surface); opacity: .93; } .pv-lab.back .pv-l { fill: var(--danger); }
+.pv-packet { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+.pv-col { fill: transparent; } .pv-col.alt { fill: var(--surface-2); opacity: .55; }
+.pv-lane-line { stroke: var(--line-2); stroke-dasharray: 2 4; }
+
+/* charts */
+.pv-grid { stroke: var(--line); stroke-width: 1; } .pv-grid-poly { fill: none; stroke: var(--line); stroke-width: 1; }
+.pv-slice { stroke: var(--c); } .pv-sw { fill: var(--c); } .pv-bar { fill: var(--c, var(--accent)); }
+.pv-bar.st-done { fill: var(--ok); } .pv-bar.st-running { fill: var(--run); } .pv-bar.st-planned { fill: var(--plan); opacity: .75; } .pv-bar.st-blocked { fill: var(--danger); }
+.pv-series { fill: none; stroke: var(--c, var(--accent)); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.pv-area { fill: var(--c); opacity: .16; } .pv-dot { fill: var(--c, var(--accent)); stroke: var(--surface); stroke-width: 1.5; }
+.pv-dot.big { stroke-width: 2; } .pv-dot.ok { fill: var(--ok); } .pv-dot.warn { fill: var(--warn); } .pv-dot.danger { fill: var(--danger); } .pv-dot.info { fill: var(--info); }
+.pv-radar { fill: var(--c); fill-opacity: .18; stroke: var(--c); stroke-width: 2; }
+.pv-q { fill: var(--surface-2); stroke: var(--line); } .pv-q.alt { fill: var(--surface); }
+.pv-heat { fill: var(--accent); fill-opacity: calc(.08 + var(--a) * .9); stroke: var(--line); stroke-width: .5; }
+.pv-today { stroke: var(--danger); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.pv-tiles { display: grid; gap: 12px; margin: 1.2em 0; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.pv-tiles.cols-2 { grid-template-columns: repeat(2, 1fr); } .pv-tiles.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.pv-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+.pv-tile-l { color: var(--muted); font-size: .8rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.pv-tile-v { font-size: 1.9rem; font-weight: 750; margin: .1em 0; } .pv-tile-d { font-size: .85rem; font-weight: 650; }
+.pv-tile-d.up { color: var(--ok); } .pv-tile-d.down { color: var(--danger); } .pv-tile-n { color: var(--muted); font-size: .82rem; margin-top: .3em; }
+.pv-spark { width: 100%; height: 36px; margin-top: 6px; } .pv-spark .pv-series { stroke-width: 2; }
+
+/* animation controls */
+.dg-anim { font: 500 .82rem var(--font); padding: .3rem .7rem; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); cursor: pointer; }
+.dg-anim:hover { border-color: var(--accent); color: var(--accent); }
+.dg-anim:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pv-noanim * { animation: none !important; } .pv-noanim .pv-packet { display: none; }
+
+/* animations (only when the visitor has not asked for reduced motion) */
+@media (prefers-reduced-motion: no-preference) {
+  [data-pv] { --d: calc(70ms / var(--pv-speed, 1)); }
+  [data-pv].pv-paused * { animation-play-state: paused !important; }
+  /* reveal: hidden until the figure scrolls into view (JS arms it, so no script = always visible) */
+  [data-anim="reveal"].pv-armed .pv-n, [data-anim="reveal"].pv-armed .pv-e { opacity: 0; }
+  [data-anim="reveal"].pv-armed.pv-run .pv-n { animation: pv-in .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * var(--d)); }
+  [data-anim="reveal"].pv-armed.pv-run .pv-e { animation: pv-in .6s ease both; animation-delay: calc(var(--i, 0) * var(--d) + 120ms); }
+  /* draw: strokes draw themselves, bars and slices grow */
+  [data-anim="draw"].pv-armed .pv-e:not(.pv-bar):not(.pv-slice) { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+  [data-anim="draw"].pv-armed.pv-run .pv-e:not(.pv-bar):not(.pv-slice) { animation: pv-draw 1.1s ease forwards; animation-delay: calc(var(--i, 0) * 90ms); }
+  [data-anim="draw"].pv-armed .pv-n { opacity: 0; }
+  [data-anim="draw"].pv-armed.pv-run .pv-n { animation: pv-in .5s ease both; animation-delay: calc(var(--i, 0) * 90ms + 300ms); }
+  [data-anim="draw"].pv-armed .pv-bar { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); }
+  [data-anim="draw"].pv-armed.pv-run .pv-bar { animation: pv-grow .7s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i, 0) * 70ms); }
+  [data-anim="draw"][data-pv="gantt"].pv-armed .pv-bar { transform-origin: 0 50%; transform: scaleX(0); }
+  [data-anim="draw"][data-pv="gantt"].pv-armed.pv-run .pv-bar { animation-name: pv-growx; }
+  [data-anim="draw"].pv-armed .pv-slice { stroke-dasharray: 0 100; }
+  [data-anim="draw"].pv-armed.pv-run .pv-slice { animation: pv-slice .9s ease forwards; animation-delay: calc(var(--i, 0) * 120ms); }
+  /* flow: dashes march along every connection */
+  [data-anim="flow"] .pv-edge { stroke-dasharray: 7 6; animation: pv-march calc(1.1s / var(--pv-speed, 1)) linear infinite; }
+  /* pulse / glow: nodes breathe in turn */
+  [data-anim="pulse"] .pv-n { transform-box: fill-box; transform-origin: center; animation: pv-pulse 2.8s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 260ms); }
+  [data-anim="glow"] .pv-n .pv-shape { animation: pv-glow 2.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 300ms); }
+  /* trace: connections light up one by one on a loop */
+  [data-anim="trace"] .pv-e { animation: pv-trace 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 480ms); }
+  [data-anim="trace"] .pv-msg .sq-t { animation: pv-trace-t 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 480ms); }
+}
+@keyframes pv-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes pv-draw { to { stroke-dashoffset: 0; } }
+@keyframes pv-grow { to { transform: scaleY(1); } }
+@keyframes pv-growx { to { transform: scaleX(1); } }
+@keyframes pv-slice { to { stroke-dasharray: var(--len, 100) 100; } }
+@keyframes pv-march { to { stroke-dashoffset: -26; } }
+@keyframes pv-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+@keyframes pv-glow { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 7px var(--accent)); } }
+@keyframes pv-trace { 0%, 8% { stroke: var(--muted); stroke-width: 1.5; } 14%, 30% { stroke: var(--accent); stroke-width: 3; } 40%, 100% { stroke: var(--muted); stroke-width: 1.5; } }
+@keyframes pv-trace-t { 0%, 8% { fill: var(--ink-2); } 14%, 30% { fill: var(--accent); } 40%, 100% { fill: var(--ink-2); } }
+@media print { [data-pv] .pv-n, [data-pv] .pv-e { opacity: 1 !important; animation: none !important; transform: none !important; } }
+@media (prefers-reduced-motion: reduce) { .pv-packet { display: none; } }
