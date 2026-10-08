@@ -1,4 +1,4 @@
-﻿---
+---
 name: docs-studio
 description: Sets up and maintains a live documentation site for ANY project - written pages with diagrams (flow, sequence, swimlane, architecture layers, system maps, trees, ER, charts, gantt and 20+ more presets with animations), pages scanned from the repo on every commit (folder map, import graph, activity, dependencies, TODOs), an editable status board and an Excalidraw whiteboard. Call it once per project; afterwards the server starts by itself in every session and a post-commit hook rebuilds the docs. Use when the user asks to document a project, draw or animate an architecture / flow / sequence / data-model diagram, build a docs site, keep docs current, add a whiteboard or status board, or says "docs studio". Also use for later requests like "add a diagram of X", "refresh the docs", "stop the docs server".
 ---
@@ -17,7 +17,7 @@ You call this skill **once per project**. The installer registers a SessionStart
 | docs already installed and they want pages updated, or the SessionStart note says pages lag the code | **Refresh** |
 | a particular diagram or animation | **Add a diagram** |
 | to turn it off / remove hooks | **Uninstall** |
-| anything unclear: audience, what to cover, which folder, whether to commit the generated page | **Ask first.** Do not guess; one short question with 2â€“3 options. |
+| anything unclear: audience, what to cover, which folder, whether to commit the generated page | **Ask first.** Do not guess; one short question with 2–3 options. |
 
 ## Setup
 
@@ -27,8 +27,8 @@ You call this skill **once per project**. The installer registers a SessionStart
    ```
    `${CLAUDE_SKILL_DIR}` is this skill's folder (normally `~/.claude/skills/docs-studio`). Read the JSON it prints. It copied the runtime to `docs/`, wrote `docs/studio.json`, registered the SessionStart hook in `.claude/settings.json`, added the post-commit hook, built the site and started the server. If `pyyaml` shows `MISSING`, tell the user to run `python -m pip install pyyaml`.
    Do not use `--docs-dir` other than `docs` unless the user asked; if `docs/` already holds unrelated files, ask.
-2. **Read the project** following `references/authoring.md` Â§1, and look at the scanned **Auto** pages. Ask the user about anything the repository cannot answer.
-3. **Plan 3â€“12 pages** (authoring.md Â§2). Tell the user the plan in a few lines before writing.
+2. **Read the project** following `references/authoring.md` §1, and look at the scanned **Auto** pages. Ask the user about anything the repository cannot answer.
+3. **Plan 3–12 pages** (authoring.md §2). Tell the user the plan in a few lines before writing.
 4. **Write the pages** to `docs/site/src/NN-name.md`. Pick diagram presets by content (table in `references/presets.md`); prefer a visual before prose; check every arrow against the code. Seeded `board` and `whiteboard` pages already exist.
 5. **Build and look**: `python docs/site/studio.py build`, fix any "Could not draw" warning, then open `python docs/site/studio.py url` in the browser pane and check each new page.
 6. `python docs/site/studio.py reviewed`.
@@ -43,7 +43,7 @@ You call this skill **once per project**. The installer registers a SessionStart
 ## Add a diagram
 
 1. Choose the preset (`references/presets.md`, "Choosing a preset"); `python docs/site/studio.py presets` prints the live catalogue including project presets.
-2. Insert the `:::name` block in the right page (or create a page), build, view, adjust. Keep it â‰¤ 12 nodes; split otherwise.
+2. Insert the `:::name` block in the right page (or create a page), build, view, adjust. Keep it ≤ 12 nodes; split otherwise.
 3. Motion: every preset has a good default. Override with `anim=packets|flow|trace|reveal|draw|pulse|glow|none`, or `static`. Use motion to explain (packets = data moving, trace = order of steps), never as decoration on dense diagrams.
 4. A shape that no preset covers: write a project preset in `docs/site/presets_custom/` (see the end of `references/presets.md`), and tell the user.
 
@@ -62,8 +62,8 @@ python docs/board/board.py list|add|move|update|remove      the status board fro
 
 ## What got installed
 
-- `docs/site/` builder, server, theme, presets, scanners Â· `docs/board/` board file and CLI Â· `docs/studio.json` settings (name, port, animation `auto|none|<name>`, scan options, `server.commit_edits`, `strict_scan`) Â· `docs/.studio/` runtime state (gitignored).
-- `.claude/settings.json`: SessionStart hook â†’ `studio.py hook session-start` (starts the server; says when the pages lag the code).
+- `docs/site/` builder, server, theme, presets, scanners · `docs/board/` board file and CLI · `docs/studio.json` settings (name, port, animation `auto|none|<name>`, scan options, `server.commit_edits`, `strict_scan`) · `docs/.studio/` runtime state (gitignored).
+- `.claude/settings.json`: SessionStart hook → `studio.py hook session-start` (starts the server; says when the pages lag the code).
 - Git `post-commit` (in `.githooks/` with `core.hooksPath` pointed at it, or appended to an existing hooks folder): rebuilds the docs in the background, never fails a commit.
 - Board and whiteboard edits are saved to files; they are committed only if `"server": {"commit_edits": true}`.
 

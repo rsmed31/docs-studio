@@ -1,4 +1,4 @@
-﻿<h1 align="center">docs-studio</h1>
+<h1 align="center">docs-studio</h1>
 
 <p align="center"><strong>A Claude Code skill that gives any project living documentation: diagrams that animate, pages that scan your repo on every commit, a status board and a whiteboard. Call it once.</strong></p>
 
@@ -116,10 +116,10 @@ note API: streams the file
 
 | | Presets |
 |---|---|
-| **Flows and behaviour** | `flow` Â· `swimlane` Â· `sequence` Â· `state` Â· `cycle` Â· `funnel` |
-| **Structure** | `zones` (system map) Â· `layers` (architecture stack) Â· `tree` Â· `mindmap` Â· `er` (schema) Â· `network` Â· `pyramid` |
-| **Data** | `chart` (line, area, column, stack) Â· `donut` Â· `radar` Â· `heatmap` Â· `gantt` Â· `quadrant` Â· `stats` (KPI tiles with sparklines) |
-| **Blocks** | `cards` Â· `steps` Â· `timeline` Â· `bars` Â· `kanban` Â· `board` |
+| **Flows and behaviour** | `flow` · `swimlane` · `sequence` · `state` · `cycle` · `funnel` |
+| **Structure** | `zones` (system map) · `layers` (architecture stack) · `tree` · `mindmap` · `er` (schema) · `network` · `pyramid` |
+| **Data** | `chart` (line, area, column, stack) · `donut` · `radar` · `heatmap` · `gantt` · `quadrant` · `stats` (KPI tiles with sparklines) |
+| **Blocks** | `cards` · `steps` · `timeline` · `bars` · `kanban` · `board` |
 
 <details>
 <summary><strong>More presets: swimlane, mind map, Gantt, KPI tiles</strong></summary>
@@ -166,7 +166,7 @@ No prompt, no config: the **Auto** section is generated from the code each time 
   <img alt="Project at a glance: stat tiles, language donut and folder bars" src="images/site-overview-light.png">
 </picture>
 
-Built in: project at a glance Â· folder structure Â· **module dependency graph** (Python, JS/TS imports) Â· git activity Â· dependencies (package.json, requirements, pyproject, go.mod, Cargo.toml, Gemfile, pubspec) Â· open TODOs Â· documents found in the repo. Add your own scanner as a 10-line Python file.
+Built in: project at a glance · folder structure · **module dependency graph** (Python, JS/TS imports) · git activity · dependencies (package.json, requirements, pyproject, go.mod, Cargo.toml, Gemfile, pubspec) · open TODOs · documents found in the repo. Add your own scanner as a 10-line Python file.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/site-modules-dark.png">
