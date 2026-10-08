@@ -25,7 +25,7 @@ You call this skill **once per project**. The installer registers a SessionStart
    ```
    python "${CLAUDE_SKILL_DIR}/scripts/install.py" --project . [--name "Project name"] [--docs-dir docs]
    ```
-   `${CLAUDE_SKILL_DIR}` is this skill's folder (normally `~/.claude/skills/docs-studio`). Read the JSON it prints. It copied the runtime to `docs/`, wrote `docs/studio.json`, registered the SessionStart hook in `.claude/settings.json`, added the post-commit hook, built the site and started the server. If `pyyaml` shows `MISSING`, tell the user to run `python -m pip install pyyaml`.
+   `${CLAUDE_SKILL_DIR}` is this skill's folder (normally `~/.claude/skills/docs-studio`, or `~/.codex/skills/docs-studio` in Codex; if the variable is not substituted, use the folder this SKILL.md is in). Outside Claude Code there is no SessionStart hook: pass `--no-session-hook` and tell the user to run `python docs/site/studio.py start` when they want the server. Read the JSON it prints. It copied the runtime to `docs/`, wrote `docs/studio.json`, registered the SessionStart hook in `.claude/settings.json`, added the post-commit hook, built the site and started the server. If `pyyaml` shows `MISSING`, tell the user to run `python -m pip install pyyaml`.
    Do not use `--docs-dir` other than `docs` unless the user asked; if `docs/` already holds unrelated files, ask.
 2. **Read the project** following `references/authoring.md` §1, and look at the scanned **Auto** pages. Ask the user about anything the repository cannot answer.
 3. **Plan 3–12 pages** (authoring.md §2). Tell the user the plan in a few lines before writing.

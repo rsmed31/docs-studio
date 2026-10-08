@@ -1,6 +1,31 @@
 <h1 align="center">docs-studio</h1>
 
-<p align="center"><strong>A Claude Code skill that gives any project living documentation: diagrams that animate, pages that scan your repo on every commit, a status board and a whiteboard. Call it once.</strong></p>
+<p align="center"><strong>An agent skill (Claude Code and Codex) that gives any project living documentation: diagrams that animate, pages that scan your repo on every commit, a status board and a whiteboard. Call it once.</strong></p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/docs-studio"><img alt="npm" src="https://img.shields.io/npm/v/docs-studio?color=cb3837&logo=npm"></a>
+  <img alt="Claude Code and Codex skill" src="https://img.shields.io/badge/Claude%20Code%20%7C%20Codex-skill-6b4eff">
+  <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab">
+  <img alt="No build step, no network" src="https://img.shields.io/badge/runtime-stdlib%20%2B%20PyYAML-2ea44f">
+  <img alt="Localhost only" src="https://img.shields.io/badge/server-127.0.0.1%20only-555">
+</p>
+
+## Install
+
+```bash
+# Claude Code  ->  ~/.claude/skills/docs-studio
+npx docs-studio
+
+# Codex        ->  ~/.codex/skills/docs-studio
+npx docs-studio --codex
+
+# both
+npx docs-studio --all
+```
+
+Then open your agent in any project and say **"document this project with docs-studio"** (Claude Code: `/docs-studio`). That is the only time you have to ask.
+
+Want the project set up right now, without asking the agent? `npx docs-studio init` (add `--codex` for Codex). More ways to install (git clone, global npm, uninstall) are under [Install options](#install-options).
 
 <p align="center">
   <picture>
@@ -9,23 +34,7 @@
   </picture>
 </p>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/docs-studio"><img alt="npm" src="https://img.shields.io/npm/v/docs-studio?color=cb3837&logo=npm"></a>
-  <img alt="Claude Code skill" src="https://img.shields.io/badge/Claude%20Code-skill-6b4eff">
-  <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab">
-  <img alt="No build step, no network" src="https://img.shields.io/badge/runtime-stdlib%20%2B%20PyYAML-2ea44f">
-  <img alt="Localhost only" src="https://img.shields.io/badge/server-127.0.0.1%20only-555">
-</p>
-
 ---
-
-## Quick start
-
-```bash
-npx docs-studio init        # installs the skill, then sets up the project in the current folder
-```
-
-Or install the skill once and let Claude do the rest in any project: `npx docs-studio`, then open Claude Code and say **"document this project with docs-studio"**. More options under [Install](#install).
 
 ## The problem
 
@@ -37,7 +46,7 @@ Let the agent that already reads your code **write the docs**, and let the repos
 
 - **Claude writes the pages.** It reads your README, manifests and entry points, then writes Markdown pages with diagrams. It asks you when the repo can't answer something.
 - **The repo writes the rest.** On every build, scanners derive the folder map, import graph, language stats, git activity, dependencies and TODOs straight from the code, so they cannot drift.
-- **Hooks keep it alive.** A git `post-commit` hook rebuilds the docs after every commit. A SessionStart hook starts the server in every Claude Code session and tells Claude when the written pages lag behind the code.
+- **Hooks keep it alive.** A git `post-commit` hook rebuilds the docs after every commit. A SessionStart hook starts the server in every Claude Code session and tells Claude when the written pages lag behind the code. (The SessionStart hook is a Claude Code feature. With Codex the git hook still runs, and you start the server yourself with `python docs/site/studio.py start`.)
 
 You call the skill **once per project**. Everything else is automatic.
 
@@ -223,32 +232,35 @@ flowchart LR
 3. **Every commit** rebuilds the site in the background. The commit hook counts how many commits touched the code since the written pages were last reviewed.
 4. **Every session** starts the server. When the pages lag behind, Claude is told and offers `refresh`: it reads only the changed areas and updates the pages they affect.
 
-## Install
+## Install options
 
 **With npm (fastest):**
 
 ```bash
-npx docs-studio                 # install or update the skill in ~/.claude/skills/docs-studio
+npx docs-studio                 # install or update the skill for Claude Code (~/.claude/skills/docs-studio)
+npx docs-studio --codex         # ...for Codex (~/.codex/skills/docs-studio)
+npx docs-studio --all           # ...for both
 npx docs-studio init            # ...and set up the project in the current folder right away
 npx docs-studio init --name "My project" --no-git-hook      # init options are passed through
 npx docs-studio uninstall       # remove the skill
 ```
 
-Or install it globally once: `npm install -g docs-studio`, then run `docs-studio` / `docs-studio init`. (`CLAUDE_CONFIG_DIR` is respected if you moved your Claude folder.)
+Or install it globally once: `npm install -g docs-studio`, then run `docs-studio` / `docs-studio init`. (`CLAUDE_CONFIG_DIR` and `CODEX_HOME` are respected if you moved those folders.)
 
 **With git:**
 
 ```bash
-git clone https://github.com/rsmed31/docs-studio.git ~/.claude/skills/docs-studio     # or copy the folder there
+git clone https://github.com/rsmed31/docs-studio.git ~/.claude/skills/docs-studio     # Claude Code (or copy the folder there)
+git clone https://github.com/rsmed31/docs-studio.git ~/.codex/skills/docs-studio      # Codex
 ```
 
-On Windows: `%USERPROFILE%\.claude\skills\docs-studio`. Start a new Claude Code session, open a project and say:
+On Windows: `%USERPROFILE%\.claude\skills\docs-studio`. Start a new session, open a project and say:
 
 > document this project with docs-studio
 
 or type `/docs-studio`. That's the only time you have to ask.
 
-**Requirements:** Claude Code, Python 3.9+ and PyYAML (`python -m pip install pyyaml`; the installer tries it for you). Git is optional (without it you lose the commit hook and the activity scanners). Node 16+ is only needed for the `npx` installer; the skill itself runs on Python alone, with no build step, no network and no CDN.
+**Requirements:** Claude Code or Codex, Python 3.9+ and PyYAML (`python -m pip install pyyaml`; the installer tries it for you). Git is optional (without it you lose the commit hook and the activity scanners). Node 16+ is only needed for the `npx` installer; the skill itself runs on Python alone, with no build step, no network and no CDN.
 
 ## Everyday use
 
