@@ -1,6 +1,6 @@
 {
   "name": "docs-studio",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "See what your AI coding agent did, why, and whether your docs still tell the truth. Claude Code plugin + skill: living docs with animated diagrams and repo-scanned pages, a hub with enforced task cards, decision log and drift reconciliation, and a PR report action.",
   "keywords": [
     "claude-code",

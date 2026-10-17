@@ -1,6 +1,6 @@
 {
   "name": "docs-studio",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "See what your AI coding agent did, why, and whether the docs still tell the truth. Living docs with animated diagrams and repo-scanned pages, plus an optional hosted hub: board cards enforced by hooks, a decision log, drift reconciliation and PR reports.",
   "author": { "name": "Mohamed Rsaissi", "url": "https://github.com/rsmed31" },
   "homepage": "https://github.com/rsmed31/docs-studio",

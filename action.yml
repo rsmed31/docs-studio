@@ -36,5 +36,5 @@ outputs:
   claude-entries:
     description: Number of hub activity entries matched to this PR
 runs:
-  using: node20
+  using: node24
   main: action/pr-report.mjs

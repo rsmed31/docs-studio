@@ -1,4 +1,4 @@
-// Docs Studio PR report (GitHub Action, node20, no dependencies).
+// Docs Studio PR report (GitHub Action, node24, no dependencies).
 // One sticky comment per pull request: what changed (areas, risky files, deletions), whether the docs kept up,
 // and, when a Docs Studio hub is connected, what Claude did and decided while making these commits, and why.
 import { execFileSync, spawnSync } from "node:child_process";
