@@ -73,3 +73,5 @@ And one loop that catches everything the others missed:
 - **Solo builders** shipping with Claude Code who come back after a week and need to know what happened.
 - **Leads** who review agent-made PRs and need the *why* next to the *what*.
 - **Small teams** running several agents in parallel who need one shared picture of the work.
+
+<!-- PR report smoke test -->
