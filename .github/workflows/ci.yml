@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Syntax
+        run: |
+          for f in bin/cli.js action/*.mjs hub-sync/server/*.mjs hub-sync/hooks/*.mjs hub/netlify/functions/*.mjs hub/site/*.js skills/docs-studio/runtime/site/theme/*.js; do node --check "$f"; done
+          python -m compileall -q skills hub-sync
+          for f in .claude-plugin/*.json .mcp.json hooks/hooks.json package.json; do python -m json.tool "$f" > /dev/null; done
+      - name: Render smoke test
+        run: |
+          echo '{"id":"t","title":"T","md":":::flow anim=packets\na[A] -> b[B]\n:::"}' | python hub-sync/render/hubdoc.py render | grep -q pv-flow
+          python hub-sync/render/hubdoc.py scan | tail -3
+      - name: Hub builds
+        run: cd hub && node build.mjs && test -f public/theme/site.js && test -f public/whiteboard/index.html
+      - name: npm package contents
+        run: npm pack --dry-run 2>&1 | tail -5
+
+  report:
+    name: PR report (dogfood)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./

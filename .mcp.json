@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "docs-studio-hub": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/hub-sync/server/mcp.mjs"]
+    }
+  }
+}

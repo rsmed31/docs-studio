@@ -1,0 +1,25 @@
+# Docs Studio hub on Netlify (free tier is enough for a team). Deploy from the repo root with base = "hub".
+[build]
+  base = "hub"
+  command = "npm run build"
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[template.environment]
+  HUB_SECRET = "Random string, 32+ characters: signs sign-in cookies and encrypts project tokens"
+  HUB_SETUP_CODE = "A one-time code you choose: needed once at /#/setup to create the owner account"
+
+# A project: /p/<slug> (pages are hash routes inside it).
+[[redirects]]
+  from = "/p/*"
+  to = "/hub/project.html"
+  status = 200
+
+[[redirects]]
+  from = "/"
+  to = "/hub/index.html"
+  status = 200
+  force = true

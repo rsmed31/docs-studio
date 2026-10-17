@@ -9,6 +9,7 @@
   'use strict';
   var root = document.getElementById('board-root');
   var seedEl = document.getElementById('board-data');
+  var API = root.getAttribute('data-api') || '/api/board';          // the hub points this at its project board
   if (!root || !seedEl) return;
   var seed = null;
   try { seed = JSON.parse(seedEl.textContent); } catch (e) { seed = null; }
@@ -330,7 +331,7 @@
     var sent = S.rev;
     S.save = 'saving'; paintStatus();
     var body = JSON.stringify({ board: S.board });
-    fetch('/api/board', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'If-Match': '"' + S.etag + '"' }, body: body, cache: 'no-store' })
+    fetch(API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Hub': '1', 'If-Match': '"' + S.etag + '"' }, body: body, cache: 'no-store' })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
         var j = res.body || {};
@@ -365,7 +366,7 @@
   }
   function poll() {
     if (S.mode !== 'served' || S.save !== 'saved' || S.panel || document.hidden || document.body.classList.contains('bd-dragging')) return;
-    fetch('/api/board', { cache: 'no-store', headers: { Accept: 'application/json' } })
+    fetch(API, { cache: 'no-store', headers: { Accept: 'application/json' } })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         if (!j || !j.board || j.etag === S.etag || S.save !== 'saved' || S.panel) return;
@@ -475,7 +476,7 @@
     var pill = $('.bd-pill'), t = $('.t', pill), note = $('.bd-note'), retry = $('[data-bd="retry"]');
     var cls = 'busy', text = 'Connecting...';
     if (S.mode === 'served') {
-      if (S.save === 'saved') { cls = 'ok'; text = 'Saved to the repo'; }
+      if (S.save === 'saved') { cls = 'ok'; text = root.getAttribute('data-api') ? 'Saved' : 'Saved to the repo'; }
       else if (S.save === 'saving') { cls = 'busy'; text = 'Saving...'; }
       else if (S.save === 'error') { cls = 'err'; text = 'Not saved'; }
       else { cls = 'warn'; text = 'Unsaved changes'; }
@@ -934,7 +935,7 @@
   }
   function probe() {
     if (!/^https?:$/.test(location.protocol) || typeof fetch !== 'function') { goLocal('file'); return; }
-    fetch('/api/board', { cache: 'no-store', headers: { Accept: 'application/json' } })
+    fetch(API, { cache: 'no-store', headers: { Accept: 'application/json' } })
       .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.json(); })
       .then(function (j) { if (!j || !j.board || !j.etag) throw new Error('shape'); goServed(j); })
       .catch(function () { goLocal('http'); });

@@ -56,7 +56,9 @@
   var h = React.createElement, X = ExcalidrawLib;
   var $ = function (id) { return document.getElementById(id); };
   var server = false;          // true when /api/whiteboards answers (serve.py or the Netlify function); else this browser only
-  var LOCAL_KEY = "avs-whiteboards";
+  var project = new URLSearchParams(location.search).get("project");      // set when embedded in a hub project
+  var BASE = project ? "/api/hub/projects/" + encodeURIComponent(project) + "/wb" : "/api/whiteboards";
+  var LOCAL_KEY = "avs-whiteboards" + (project ? ":" + project : "");
   var state = { boards: [], current: null, scene: null, dirty: false, lastCommit: Date.now(), api: null };
   var root = ReactDOM.createRoot($("stage"));
   var saveTimer = null;
@@ -70,28 +72,28 @@
   function localAll() { try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); } catch (e) { return {}; } }
   function localPut(all) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(all)); return true; } catch (e) { return false; } }
   function api(method, path, body, extra) {
-    return fetch(path, { method: method, headers: Object.assign({ "Content-Type": "application/json" }, extra || {}),
+    return fetch(path, { method: method, headers: Object.assign({ "Content-Type": "application/json", "X-Hub": "1" }, extra || {}), credentials: "same-origin",
                          body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j.errors || [j.error]).join("; ")); return j; }); });
   }
   function listBoards() {
-    if (server) return api("GET", "/api/whiteboards").then(function (j) { return j.boards; });
+    if (server) return api("GET", BASE).then(function (j) { return j.boards; });
     var all = localAll();
     return Promise.resolve(Object.keys(all).map(function (id) { return { id: id, title: all[id].title, updated: all[id].updated }; }));
   }
   function loadBoard(id) {
-    if (server) return api("GET", "/api/whiteboards/" + id);
+    if (server) return api("GET", BASE + "/" + id);
     return Promise.resolve(localAll()[id] || { id: id, title: "Untitled", scene: null });
   }
   function storeBoard(id, title, scene, commit) {
     var doc = { id: id, title: title, scene: scene, updated: new Date().toISOString() };
-    if (server) return api("PUT", "/api/whiteboards/" + id, doc, commit ? { "X-Commit": "1" } : null);
+    if (server) return api("PUT", BASE + "/" + id, doc, commit ? { "X-Commit": "1" } : null);
     var all = localAll(); all[id] = doc;
     return Promise.resolve(localPut(all) ? { saved: true, committed: false, note: "saved in this browser only" }
                                          : Promise.reject(new Error("browser storage is full or blocked")));
   }
   function removeBoard(id) {
-    if (server) return api("DELETE", "/api/whiteboards/" + id);
+    if (server) return api("DELETE", BASE + "/" + id);
     var all = localAll(); delete all[id]; localPut(all); return Promise.resolve({});
   }
 
@@ -219,7 +221,7 @@
   document.addEventListener("visibilitychange", function () { if (document.hidden && state.dirty) save(true); });
 
   paintThemeButton();
-  api("GET", "/api/whiteboards").then(function () { server = true; }, function () { server = false; })
+  api("GET", BASE).then(function () { server = true; }, function () { server = false; })
   .then(listBoards).then(function (boards) {
     state.boards = boards || [];
     var last = null; try { last = localStorage.getItem("avs-whiteboard-last"); } catch (e) {}

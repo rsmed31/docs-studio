@@ -1,5 +1,7 @@
-﻿__pycache__/
+__pycache__/
 *.pyc
 .studio/
-
 *.tgz
+node_modules/
+hub/public/
+.netlify/

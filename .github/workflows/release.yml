@@ -1,0 +1,58 @@
+name: Release
+on:
+  push:
+    tags: ["v*.*.*"]
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check the tag matches package.json
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+
+      # GitHub Packages: shows in the repository's Packages sidebar.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: "@rsmed31"
+      - name: Publish to GitHub Packages (@rsmed31/docs-studio)
+        run: |
+          cp package.json package.json.orig
+          npm pkg set name=@rsmed31/docs-studio publishConfig.registry=https://npm.pkg.github.com
+          npm publish
+          mv package.json.orig package.json
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # npmjs.com (docs-studio): runs when the NPM_TOKEN secret exists.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - name: Publish to npm (docs-studio)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::notice::NPM_TOKEN not set: skipped npmjs.com"; exit 0; fi
+          npm publish --provenance --access public
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "Docs Studio $GITHUB_REF_NAME" --generate-notes --verify-tag || gh release edit "$GITHUB_REF_NAME" --title "Docs Studio $GITHUB_REF_NAME"
+
+      - name: Move the major tag (uses rsmed31/docs-studio@v0)
+        run: |
+          major="${GITHUB_REF_NAME%%.*}"
+          git tag -f "$major" "$GITHUB_REF_NAME"
+          git push -f origin "$major"

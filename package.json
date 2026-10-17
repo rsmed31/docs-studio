@@ -1,7 +1,7 @@
 {
   "name": "docs-studio",
-  "version": "0.1.1",
-  "description": "Claude Code skill for living project documentation: animated architecture, flow and sequence diagrams from plain text, docs pages scanned from your repo on every commit (folder map, module dependency graph, git activity, dependencies, TODOs), a kanban status board and an Excalidraw whiteboard. Call it once; hooks keep it current.",
+  "version": "0.2.0",
+  "description": "See what your AI coding agent did, why, and whether your docs still tell the truth. Claude Code plugin + skill: living docs with animated diagrams and repo-scanned pages, a hub with enforced task cards, decision log and drift reconciliation, and a PR report action.",
   "keywords": [
     "claude-code",
     "claude",
@@ -27,7 +27,13 @@
     "whiteboard",
     "static-site",
     "git-hooks",
-    "developer-tools"
+    "developer-tools",
+    "observability",
+    "traceability",
+    "pull-request",
+    "github-action",
+    "mcp",
+    "claude-code-plugin"
   ],
   "homepage": "https://github.com/rsmed31/docs-studio#readme",
   "repository": {
@@ -43,14 +49,16 @@
   },
   "files": [
     "bin",
-    "SKILL.md",
+    "skills",
     "README.md",
-    "scripts",
-    "runtime",
-    "references"
+    "VISION.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=16"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

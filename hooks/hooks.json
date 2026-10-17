@@ -1,0 +1,17 @@
+{
+  "description": "Docs Studio hub sync. Inert until HUB_URL, HUB_PROJECT and HUB_TOKEN are set (the local docs skill needs none of this).",
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hub-sync/hooks/session-start.mjs\"" }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Edit|Write|NotebookEdit", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hub-sync/hooks/guard.mjs\"" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Edit|Write|NotebookEdit|Bash|mcp__.*hub.*", "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hub-sync/hooks/track.mjs\"" }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hub-sync/hooks/stop.mjs\"" }] }
+    ]
+  }
+}

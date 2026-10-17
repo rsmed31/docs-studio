@@ -1,0 +1,8 @@
+{
+  "name": "docs-studio-hub",
+  "private": true,
+  "type": "module",
+  "description": "Docs Studio hub: the hosted side (Netlify Functions + Blobs). Deploy with the button in the README.",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "@netlify/blobs": "^8.1.0" }
+}

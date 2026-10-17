@@ -6,13 +6,14 @@
   var root = document.documentElement;
   var BUILD = root.getAttribute('data-build');
   var HOME = root.getAttribute('data-home');
+  var HUB = root.hasAttribute('data-hub');                    // served by the Docs Studio hub: edits are saved to it
   var blob = {};
   try { blob = JSON.parse($('#page-data').textContent) || {}; } catch (e) { blob = {}; }
   var data = blob.pages || {};
   var aliases = blob.aliases || {};
 
   // ---- storage (every access guarded: it can be blocked or full) ------------ //
-  var EDIT_KEY = 'avs-docs-edits-v1';
+  var EDIT_KEY = 'avs-docs-edits-v1' + (root.getAttribute('data-edit-scope') ? ':' + root.getAttribute('data-edit-scope') : '');   // one store per hub project
   var THEME_KEY = 'avs-docs-theme';
   var store = {
     get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
@@ -87,7 +88,7 @@
     pages.forEach(function (p) { p.hidden = p !== el; });
     var id = el.getAttribute('data-page');
     syncNav(el);
-    document.title = (id === HOME ? '' : $('h1', el).textContent + ' - ') + (document.documentElement.getAttribute('data-title') || 'Docs');
+    document.title = (id === HOME ? '' : $('h1', el).textContent + ' - ') + (root.getAttribute('data-site') || root.getAttribute('data-title') || 'Docs');
     document.body.classList.remove('nav-open');
     $('#nav-toggle').setAttribute('aria-expanded', 'false');
     var target = r.anchor ? document.getElementById(id + '--' + r.anchor) : null;
@@ -458,13 +459,18 @@
     restore.hidden = !stale;
     if (!editing && !n && !stale) { banner.hidden = true; return; }
     var msg = [];
-    if (editing) msg.push('<strong>Editing.</strong> Click in the text and type. Cards, steps and diagrams are changed in the .md file. Reference pages stay read-only.');
-    if (n) msg.push(n + ' page' + (n === 1 ? '' : 's') + ' changed. Changes live in this browser only: use Copy as Markdown to paste them back into docs/site/src, or download the HTML.');
+    if (HUB) {
+      if (editing) msg.push('<strong>Editing.</strong> Click in the text and type, then press <strong>Save to hub</strong>. Reference pages stay read-only.');
+      if (n) msg.push(n + ' page' + (n === 1 ? '' : 's') + ' changed and not saved to the hub yet.');
+    } else {
+      if (editing) msg.push('<strong>Editing.</strong> Click in the text and type. Cards, steps and diagrams are changed in the .md file. Reference pages stay read-only.');
+      if (n) msg.push(n + ' page' + (n === 1 ? '' : 's') + ' changed. Changes live in this browser only: use Copy as Markdown to paste them back into docs/site/src, or download the HTML.');
+    }
     if (stale) msg.push('Edits made on an older build of the docs are stored here (' + Object.keys(stale.pages).length + ' page(s)). They may overwrite newer text.');
     if (storageFailed) msg.push('<strong>This browser would not store the edits.</strong> Download the HTML before you close the page.');
     text.innerHTML = msg.join(' ');
     $('[data-act="discard"]').hidden = !(n || stale);
-    $('[data-act="download"]').hidden = !n;
+    $('[data-act="download"]').hidden = !n || HUB;
     $('[data-act="copy-section"]').hidden = !editing;
     banner.hidden = false;
   }
@@ -610,7 +616,7 @@
     var blobFile = new Blob([html], { type: 'text/html' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blobFile);
-    a.download = 'ai-video-studio-docs-edited.html';
+    a.download = 'docs-edited.html';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
   }

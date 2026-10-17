@@ -1,0 +1,14 @@
+{
+  "name": "docs-studio",
+  "owner": { "name": "Mohamed Rsaissi", "url": "https://github.com/rsmed31" },
+  "metadata": { "description": "Visibility for Claude Code: living docs, decision log, board and PR reports." },
+  "plugins": [
+    {
+      "name": "docs-studio",
+      "source": "./",
+      "description": "Living docs with animated diagrams and repo-scanned pages (local skill), plus an optional hosted hub that traces what Claude did and why.",
+      "category": "productivity",
+      "tags": ["documentation", "diagrams", "observability", "traceability"]
+    }
+  ]
+}

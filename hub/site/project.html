@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-hub="1" data-home="hub-board" data-build="hub">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Docs Studio</title>
+<link rel="stylesheet" href="/theme/site.css">
+<link rel="stylesheet" href="/theme/board.css">
+<link rel="stylesheet" href="/theme/presets.css">
+<link rel="stylesheet" href="/hub/project.css">
+<script>
+  (function () { var t = null; try { t = localStorage.getItem("avs-docs-theme"); } catch (e) {}
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <button id="nav-toggle" class="icon-btn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+  </button>
+  <a class="hub-back" href="/" title="Docs Studio: all projects" aria-label="Docs Studio: all projects">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <a class="brand" id="brand" href="#">
+    <svg class="logo" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="5" fill="currentColor" opacity=".16"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>
+    <span id="brand-name">Project</span>
+  </a>
+  <button id="open-search" class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search this project">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span class="sb-label">Search this project</span><kbd>Ctrl K</kbd>
+  </button>
+  <div class="actions">
+    <button id="wb-open" class="btn" type="button" aria-controls="wb-drawer" aria-expanded="false" title="Whiteboard (W)">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-3px;margin-right:4px"><path d="M3 21l3.5-1 11-11-2.5-2.5-11 11zM14 6.5l2.5 2.5M16.5 4l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Whiteboard
+    </button>
+    <a id="settings-btn" class="icon-btn always" href="#hub-settings" title="Project settings" aria-label="Project settings" hidden>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </a>
+    <button id="theme-toggle" class="icon-btn always" type="button" aria-label="Switch between light and dark">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    </button>
+    <button id="edit-toggle" class="btn" type="button" aria-pressed="false">Edit</button>
+    <span class="hub-user" id="hub-user"></span>
+  </div>
+</header>
+
+<div id="edit-banner" class="banner" role="status" hidden>
+  <div class="banner-text" id="banner-text"></div>
+  <div class="banner-actions">
+    <button type="button" class="btn small primary" id="hub-save">Save to hub</button>
+    <button type="button" class="btn small" data-act="copy-section">Copy section as Markdown</button>
+    <button type="button" class="btn small" data-act="copy-page">Copy page as Markdown</button>
+    <button type="button" class="btn small" data-act="download" hidden>Download edited HTML</button>
+    <button type="button" class="btn small" data-act="restore" hidden>Restore stored edits</button>
+    <button type="button" class="btn small danger" data-act="discard">Discard edits</button>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Project navigation">
+    <nav id="nav"></nav>
+    <div class="side-foot" id="side-foot"></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <main id="main" tabindex="-1"><p class="hub-loading">Loading the project…</p></main>
+</div>
+
+<aside id="wb-drawer" class="wb-drawer" aria-label="Whiteboard" hidden>
+  <div class="wb-head">
+    <strong>Whiteboard</strong>
+    <span class="wb-sp"></span>
+    <button type="button" class="btn small" id="wb-wide" aria-pressed="false">Full width</button>
+    <button type="button" class="btn small" id="wb-close">Close</button>
+  </div>
+  <div class="wb-body" id="wb-body"></div>
+</aside>
+
+<div id="palette" class="palette" hidden>
+  <div class="palette-scrim" data-close="1"></div>
+  <div class="palette-box" role="dialog" aria-modal="true" aria-label="Search this project">
+    <div class="palette-input">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="q" type="text" placeholder="Search pages, sections, cards" autocomplete="off" spellcheck="false" aria-label="Search this project" aria-controls="results" role="combobox" aria-expanded="true">
+      <kbd>Esc</kbd>
+    </div>
+    <div id="results" class="results" role="listbox"></div>
+    <div class="palette-foot"><span><kbd>&uarr;</kbd><kbd>&darr;</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="/hub/project.js"></script>
+</body>
+</html>

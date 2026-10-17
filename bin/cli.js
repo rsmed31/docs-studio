@@ -14,6 +14,7 @@ const DEST = {
   claude: path.join(process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude"), "skills", "docs-studio"),
   codex: path.join(process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), "skills", "docs-studio"),
 };
+const SKILL_SRC = path.join(PKG, "skills", "docs-studio");                 // the skill, as the Claude Code plugin ships it
 const PAYLOAD = ["SKILL.md", "README.md", "LICENSE", "scripts", "runtime", "references"];
 const FLAGS = ["--claude", "--codex", "--all"];
 
@@ -48,7 +49,7 @@ function installSkill(target) {
   const existed = fs.existsSync(target);
   fs.mkdirSync(target, { recursive: true });
   for (const item of PAYLOAD) {
-    const src = path.join(PKG, item);
+    const src = fs.existsSync(path.join(SKILL_SRC, item)) ? path.join(SKILL_SRC, item) : path.join(PKG, item);
     if (!fs.existsSync(src)) continue;
     const dst = path.join(target, item);
     fs.rmSync(dst, { recursive: true, force: true });

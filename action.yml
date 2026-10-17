@@ -1,0 +1,40 @@
+name: Docs Studio PR report
+description: One comment per pull request with what Claude Code did and why (decisions, board, reconciled drift), risky changes, and whether the docs kept up.
+author: Mohamed Rsaissi
+branding:
+  icon: book-open
+  color: purple
+inputs:
+  hub-url:
+    description: Your Docs Studio hub, e.g. https://your-hub.netlify.app (optional; without it the report covers the repository only)
+    required: false
+  hub-project:
+    description: The project id in the hub (the slug in /p/<slug>)
+    required: false
+  hub-token:
+    description: The project token from the hub (store it as a secret, e.g. secrets.DOCS_STUDIO_TOKEN)
+    required: false
+  github-token:
+    description: Token used to post the comment
+    required: false
+    default: ${{ github.token }}
+  check-docs:
+    description: Run the docs-studio freshness check when docs/site/build.py exists (auto, false)
+    required: false
+    default: auto
+  fail-on-stale-docs:
+    description: Fail the check when the generated docs site is stale
+    required: false
+    default: "false"
+  comment:
+    description: Post (and keep updating) one comment on the PR; the report always goes to the job summary
+    required: false
+    default: "true"
+outputs:
+  docs-state:
+    description: fresh, stale, error or none
+  claude-entries:
+    description: Number of hub activity entries matched to this PR
+runs:
+  using: node20
+  main: action/pr-report.mjs

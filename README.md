@@ -1,31 +1,77 @@
-<h1 align="center">docs-studio</h1>
+<h1 align="center">Docs Studio</h1>
 
-<p align="center"><strong>An agent skill (Claude Code and Codex) that gives any project living documentation: diagrams that animate, pages that scan your repo on every commit, a status board and a whiteboard. Call it once.</strong></p>
+<p align="center"><strong>See what your AI coding agent did, why it did it, and whether your docs still tell the truth.</strong><br>
+Living docs with animated diagrams and pages scanned from your repo, a hub where every change has a card and every choice a reason, and a report on every pull request. For Claude Code (and Codex).</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/docs-studio"><img alt="npm" src="https://img.shields.io/npm/v/docs-studio?color=cb3837&logo=npm"></a>
-  <img alt="Claude Code and Codex skill" src="https://img.shields.io/badge/Claude%20Code%20%7C%20Codex-skill-6b4eff">
+  <img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin%20%2B%20skill-6b4eff">
+  <a href="#pr-report"><img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-PR%20report-2088ff?logo=githubactions&logoColor=white"></a>
+  <a href="https://app.netlify.com/start/deploy?repository=https://github.com/rsmed31/docs-studio&base=hub"><img alt="Deploy the hub to Netlify" src="https://img.shields.io/badge/hub-deploy%20to%20Netlify-00c7b7?logo=netlify&logoColor=white"></a>
   <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab">
-  <img alt="No build step, no network" src="https://img.shields.io/badge/runtime-stdlib%20%2B%20PyYAML-2ea44f">
-  <img alt="Localhost only" src="https://img.shields.io/badge/server-127.0.0.1%20only-555">
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-555"></a>
 </p>
+
+Coding agents write more code than their owners can read. A diff shows **what** changed, not **why**, not what was **decided**, not whether the docs are still **true**. Docs Studio closes those loops automatically, with hooks instead of paperwork. Read the full idea in **[VISION.md](VISION.md)**.
+
+| Layer | What you get | Needs |
+|---|---|---|
+| **Docs** | A living docs site: 20+ diagram presets that animate, pages scanned from the repo on every commit (structure, module graph, git activity, dependencies, TODOs), a status board and a whiteboard. | Python 3.9+ |
+| **Hub** *(optional)* | Every project in one place: hooks make Claude claim a board card before editing code, log decisions with reasons, reconcile work done outside the hub, and keep pages current. To-do and brainstorming lists, invitation-only access. | A free Netlify site |
+| **PR report** *(optional)* | One comment per pull request: what Claude did and why, decisions, risky files, whether the docs kept up. | A GitHub workflow |
 
 ## Install
 
-```bash
-# Claude Code  ->  ~/.claude/skills/docs-studio
-npx docs-studio
+**Claude Code plugin** (docs skill + hub connector, one step):
 
-# Codex        ->  ~/.codex/skills/docs-studio
-npx docs-studio --codex
-
-# both
-npx docs-studio --all
+```
+/plugin install docs-studio --marketplace rsmed31/docs-studio
 ```
 
-Then open your agent in any project and say **"document this project with docs-studio"** (Claude Code: `/docs-studio`). That is the only time you have to ask.
+On older Claude Code: `/plugin marketplace add rsmed31/docs-studio`, then `/plugin install docs-studio@docs-studio`.
 
-Want the project set up right now, without asking the agent? `npx docs-studio init` (add `--codex` for Codex). More ways to install (git clone, global npm, uninstall) are under [Install options](#install-options).
+**Or the skill alone, with npm** (also for Codex):
+
+```bash
+npx docs-studio            # Claude Code  ->  ~/.claude/skills/docs-studio
+npx docs-studio --codex    # Codex        ->  ~/.codex/skills/docs-studio
+```
+
+Then open your agent in any project and say **"document this project with docs-studio"** (Claude Code: `/docs-studio`). That is the only time you have to ask. Want it set up right now? `npx docs-studio init`. More under [Install options](#install-options).
+
+### The hub (optional)
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/rsmed31/docs-studio&base=hub)
+
+1. Deploy (free tier). Netlify asks for `HUB_SECRET` (32+ random characters) and `HUB_SETUP_CODE` (a one-time code you choose).
+2. Open `https://<your-site>/#/setup` and create the owner account with that code.
+3. Create a project, open its settings (gear, top right) and copy the `.claude/settings.local.json` block into the project's repository. The plugin's hooks wake up: card before code, decisions and summaries in the traceability log, drift reconciled at the next session, Auto pages after each commit.
+4. Authorize teammates under **People with access** (invitation only; removing someone signs them out at once). Who else may enter can also be listed in `hub/netlify/access.mjs`.
+
+### PR report
+
+Add the project token as the repository secret `DOCS_STUDIO_TOKEN`, then `.github/workflows/docs-studio.yml`:
+
+```yaml
+name: Docs Studio PR report
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: rsmed31/docs-studio@v0
+        with:
+          hub-url: https://your-hub.netlify.app      # optional: without the hub, the report covers the repository only
+          hub-project: your-project
+          hub-token: ${{ secrets.DOCS_STUDIO_TOKEN }}
+          fail-on-stale-docs: false                  # true: fail when docs/site is out of date
+```
 
 <p align="center">
   <picture>
@@ -250,11 +296,12 @@ Or install it globally once: `npm install -g docs-studio`, then run `docs-studio
 **With git:**
 
 ```bash
-git clone https://github.com/rsmed31/docs-studio.git ~/.claude/skills/docs-studio     # Claude Code (or copy the folder there)
-git clone https://github.com/rsmed31/docs-studio.git ~/.codex/skills/docs-studio      # Codex
+git clone https://github.com/rsmed31/docs-studio.git
+cp -r docs-studio/skills/docs-studio ~/.claude/skills/     # Claude Code (Codex: ~/.codex/skills/)
+claude --plugin-dir ./docs-studio                           # or try the whole plugin for one session
 ```
 
-On Windows: `%USERPROFILE%\.claude\skills\docs-studio`. Start a new session, open a project and say:
+On Windows the skills folder is `%USERPROFILE%\.claude\skills\`. Start a new session, open a project and say:
 
 > document this project with docs-studio
 
@@ -342,19 +389,17 @@ def scan(ctx):                      # ctx.files, ctx.read(path), ctx.run(*git_ar
 ## Repository layout
 
 ```
-package.json, bin/cli.js the npm installer (`npx docs-studio`)
-SKILL.md                 what Claude reads (setup, refresh, add a diagram, uninstall)
-scripts/install.py       one-time installer / updater / uninstaller
-runtime/                 copied into each project's docs/
-  site/                  build.py, serve.py, studio.py, scan.py, blocks.py, presets/, theme/, whiteboard/
-  board/                 board.py (status board file + CLI)
-  templates/             starter board and whiteboard pages
-references/
-  presets.md             every preset: syntax, options, examples
-  authoring.md           how to read a project and write good pages
-images/                  screenshots used by this README (light and dark)
+.claude-plugin/          plugin.json + marketplace.json (the Claude Code plugin is the repo root)
+skills/docs-studio/      the skill: SKILL.md, scripts/install.py, runtime/ (copied into each project's docs/), references/
+hooks/hooks.json         hub hooks: card before code, tracking, Auto-page rescans, stop checks (inert without a hub)
+.mcp.json                the hub MCP server (board, pages, decisions, drift, lists, scans)
+hub-sync/                server/mcp.mjs, hooks/*.mjs, render/hubdoc.py (renders pages with the skill runtime), import_site.py
+hub/                     the hosted hub: Netlify Functions + Blobs API, home and project pages (deploy button above)
+action.yml, action/      the PR report GitHub Action
+bin/cli.js               the npm installer (`npx docs-studio`)
+VISION.md                where this is going and why
 ```
 
 ## Credits and license
 
-The whiteboard is [Excalidraw](https://github.com/excalidraw/excalidraw) 0.17.6 with React, both MIT-licensed and vendored under `runtime/site/whiteboard/vendor/` with their licenses. The rest of this repository is released under the [MIT License](LICENSE).
+The whiteboard is [Excalidraw](https://github.com/excalidraw/excalidraw) 0.17.6 with React, both MIT-licensed and vendored under `skills/docs-studio/runtime/site/whiteboard/vendor/` (with the excalidraw.com collaboration key removed, since it is unused when embedded) with their licenses. The rest of this repository is released under the [MIT License](LICENSE).
