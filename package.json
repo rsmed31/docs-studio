@@ -1,14 +1,56 @@
 {
   "name": "docs-studio",
-  "version": "0.1.0",
-  "description": "Claude Code skill: living documentation for any project. Animated diagrams, pages scanned from your repo on every commit, a status board and a whiteboard. Call it once.",
-  "keywords": ["claude-code", "claude", "skill", "documentation", "docs", "diagrams", "architecture", "mermaid-alternative", "excalidraw", "kanban"],
+  "version": "0.1.1",
+  "description": "Claude Code skill for living project documentation: animated architecture, flow and sequence diagrams from plain text, docs pages scanned from your repo on every commit (folder map, module dependency graph, git activity, dependencies, TODOs), a kanban status board and an Excalidraw whiteboard. Call it once; hooks keep it current.",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "claude-skill",
+    "anthropic",
+    "ai-agent",
+    "agentic-coding",
+    "codex",
+    "documentation",
+    "living-documentation",
+    "docs-as-code",
+    "developer-documentation",
+    "architecture-diagram",
+    "diagrams-as-code",
+    "sequence-diagram",
+    "flowchart",
+    "animated-diagrams",
+    "mermaid-alternative",
+    "dependency-graph",
+    "codebase-visualization",
+    "kanban",
+    "excalidraw",
+    "whiteboard",
+    "static-site",
+    "git-hooks",
+    "developer-tools"
+  ],
   "homepage": "https://github.com/rsmed31/docs-studio#readme",
-  "repository": { "type": "git", "url": "git+https://github.com/rsmed31/docs-studio.git" },
-  "bugs": { "url": "https://github.com/rsmed31/docs-studio/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsmed31/docs-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rsmed31/docs-studio/issues"
+  },
   "author": "Mohamed Rsaissi",
-  "bin": { "docs-studio": "bin/cli.js" },
-  "files": ["bin", "SKILL.md", "README.md", "scripts", "runtime", "references"],
-  "engines": { "node": ">=16" },
+  "bin": {
+    "docs-studio": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "SKILL.md",
+    "README.md",
+    "scripts",
+    "runtime",
+    "references"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
   "license": "MIT"
 }
